@@ -373,11 +373,16 @@
             runBoot();
         };
 
-        // Helper function to create and show notifications (max 3 concurrent)
+        // Notification configuration
+        const MAX_NOTIFICATIONS = 3;
+        const NOTIFICATION_DISPLAY_TIME = 5000; // ms
+        const FADE_OUT_DURATION = 500; // ms
+        
+        // Helper function to create and show notifications
         let activeNotifications = [];
         function showNotification(message) {
-            // Limit to 3 concurrent notifications
-            if (activeNotifications.length >= 3) {
+            // Limit concurrent notifications
+            if (activeNotifications.length >= MAX_NOTIFICATIONS) {
                 const oldest = activeNotifications.shift();
                 if (oldest && oldest.parentNode) {
                     oldest.remove();
@@ -390,15 +395,15 @@
             document.body.appendChild(notification);
             activeNotifications.push(notification);
             
-            // Remove notification after 5 seconds
+            // Remove notification after display time
             setTimeout(() => {
                 notification.style.opacity = '0';
-                notification.style.transition = 'opacity 0.5s';
+                notification.style.transition = `opacity ${FADE_OUT_DURATION}ms`;
                 setTimeout(() => {
                     notification.remove();
                     activeNotifications = activeNotifications.filter(n => n !== notification);
-                }, 500);
-            }, 5000);
+                }, FADE_OUT_DURATION);
+            }, NOTIFICATION_DISPLAY_TIME);
         }
 
         enterBtn.addEventListener('click', () => {
