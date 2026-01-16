@@ -168,7 +168,7 @@
             <div class="w-full md:w-1/2 text-right">
                 <h2 class="text-4xl cinzel text-yellow-400 mb-4">The Snap</h2>
                 <p class="text-gray-300 leading-relaxed">
-                    It started as a pixelated image on a screen. Just a Snapchat notification. But the moment we started talking, the noise of the world faded away. I didn't just find a friend; I found a frequency that only my heart could hear.
+                    It started as a pixelated image on a screen. Just a Snapchat notification. But the moment we started talking, the noise of the world faded away. I didn't just find a friend; I found someone who makes every conversation feel like home.
                 </p>
             </div>
             <div class="w-full md:w-1/2 flex justify-start">
@@ -182,7 +182,7 @@
             <div class="w-full md:w-1/2 text-left">
                 <h2 class="text-4xl cinzel text-pink-500 mb-4">The Detail</h2>
                 <p class="text-gray-300 leading-relaxed">
-                    They say eyes are the window to the soul, but for me, it was that <strong class="text-white">Nose Ring</strong>. It captures your beauty in a way that feels ancient and modern all at once. It’s a small detail, but to me, it shines brighter than any star in this background.
+                    They say eyes are the window to the soul, but for me, it was that <strong class="text-white">Nose Ring</strong>. It captures your beauty in a way that feels ancient and modern all at once. Elegant, confident, uniquely you.
                 </p>
             </div>
             <div class="w-full md:w-1/2 flex justify-end">
@@ -196,7 +196,7 @@
             <div class="w-full md:w-1/2 text-right">
                 <h2 class="text-4xl cinzel text-purple-400 mb-4">The Faith</h2>
                 <p class="text-gray-300 leading-relaxed">
-                    You are a Brahman, a soul connected to the divine. You love Puja Path, and that devotion makes you precious. In a world that is losing faith, you are my reminder that <strong class="text-white">God</strong> exists. You are my blessing.
+                    You are a Brahman, a soul connected to the divine. You love Puja Path, and that devotion makes you precious. In a world that is losing faith, you are my reminder that <strong class="text-white">purity and grace</strong> still exist.
                 </p>
             </div>
             <div class="w-full md:w-1/2 flex justify-start">
@@ -253,7 +253,7 @@
 
                 <div class="flex flex-col md:flex-row items-center justify-center gap-6 h-32 relative">
                     
-                    <button id="yes-btn" class="group relative px-12 py-5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,42,109,0.4)] transition-transform hover:scale-105 active:scale-95">
+                    <button id="yes-btn" class="group relative px-12 py-5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,42,109,0.4)] transition-transform hover:scale-105">
                         <span class="relative z-10 text-xl font-bold tracking-wider text-white">YES, I WILL ❤️</span>
                         <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
                     </button>
@@ -292,6 +292,17 @@
         // REPLACE THIS WITH YOUR WHATSAPP NUMBER!
         const YOUR_PHONE_NUMBER = "910000000000"; 
         
+        // Global error handler for debugging
+        window.addEventListener('error', function(event) {
+            console.error('Error caught:', {
+                message: event.message,
+                source: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                error: event.error
+            });
+        });
+        
         // Initialize Icons
         lucide.createIcons();
         gsap.registerPlugin(ScrollTrigger, TextPlugin);
@@ -315,34 +326,104 @@
         ];
 
         let msgIndex = 0;
+        let bootCompleted = false;
         
         function runBoot() {
+            console.log(`Boot sequence: Step ${msgIndex + 1}/${bootMessages.length}`);
+            
             if (msgIndex < bootMessages.length) {
                 bootText.innerText = bootMessages[msgIndex];
                 gsap.to(bootBar, { width: ((msgIndex + 1) / bootMessages.length) * 100 + "%", duration: 0.5 });
                 msgIndex++;
                 setTimeout(runBoot, 800);
             } else {
+                console.log('Boot sequence completed - showing enter button');
+                bootCompleted = true;
                 enterBtn.classList.remove('hidden');
                 gsap.from(enterBtn, { opacity: 0, y: 10 });
             }
         }
 
-        window.onload = runBoot;
+        // Helper to check if boot screen is visible
+        function isBootScreenVisible() {
+            const style = window.getComputedStyle(bootScreen);
+            return style.display !== 'none' && style.opacity !== '0';
+        }
+
+        // Fallback timeout: auto-enter after 10 seconds if boot hangs
+        setTimeout(() => {
+            if (!bootCompleted && isBootScreenVisible()) {
+                console.warn('Boot sequence timeout - forcing entry');
+                bootText.innerText = "Boot timeout - forcing entry...";
+                enterBtn.classList.remove('hidden');
+                bootCompleted = true;
+                
+                // Auto-click after 1 more second
+                setTimeout(() => {
+                    if (isBootScreenVisible()) {
+                        console.log('Auto-entering site after timeout');
+                        enterBtn.click();
+                    }
+                }, 1000);
+            }
+        }, 10000);
+
+        window.onload = function() {
+            console.log('Page loaded - starting boot sequence');
+            runBoot();
+        };
+
+        // Notification configuration
+        const MAX_NOTIFICATIONS = 3;
+        const NOTIFICATION_DISPLAY_TIME = 5000; // ms
+        const FADE_OUT_DURATION = 500; // ms
+        
+        // Helper function to create and show notifications
+        let activeNotifications = [];
+        function showNotification(message) {
+            // Limit concurrent notifications
+            if (activeNotifications.length >= MAX_NOTIFICATIONS) {
+                const oldest = activeNotifications.shift();
+                if (oldest && oldest.parentNode) {
+                    oldest.remove();
+                }
+            }
+            
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 text-sm font-mono';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            activeNotifications.push(notification);
+            
+            // Remove notification after display time
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = `opacity ${FADE_OUT_DURATION}ms`;
+                setTimeout(() => {
+                    notification.remove();
+                    activeNotifications = activeNotifications.filter(n => n !== notification);
+                }, FADE_OUT_DURATION);
+            }, NOTIFICATION_DISPLAY_TIME);
+        }
 
         enterBtn.addEventListener('click', () => {
+            console.log('Enter button clicked - attempting to start audio and enter site');
+            
             // Attempt Audio Play
             music.volume = 0.4;
             music.play().then(() => {
+                console.log('Audio playback started successfully');
                 musicIcon.parentElement.classList.add('disc-spin');
-            }).catch(() => {
-                console.log("Audio blocked by browser policy");
+            }).catch((error) => {
+                console.warn('Audio blocked by browser policy:', error);
+                showNotification('🔇 Audio blocked - Click the music icon to enable');
             });
 
             gsap.to(bootScreen, {
                 opacity: 0,
                 duration: 1,
                 onComplete: () => {
+                    console.log('Boot screen hidden - showing main content');
                     bootScreen.style.display = 'none';
                     mainBody.classList.remove('opacity-0');
                     initMainAnimations();
@@ -352,9 +433,15 @@
 
         function toggleMusic() {
             if (music.paused) {
-                music.play();
-                musicIcon.parentElement.classList.add('disc-spin');
+                music.play().then(() => {
+                    console.log('Music started');
+                    musicIcon.parentElement.classList.add('disc-spin');
+                }).catch((error) => {
+                    console.warn('Could not play music:', error);
+                    showNotification('🎵 Please interact with the page to enable audio');
+                });
             } else {
+                console.log('Music paused');
                 music.pause();
                 musicIcon.parentElement.classList.remove('disc-spin');
             }
