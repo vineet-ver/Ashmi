@@ -196,7 +196,7 @@
             <div class="w-full md:w-1/2 text-right">
                 <h2 class="text-4xl cinzel text-purple-400 mb-4">The Faith</h2>
                 <p class="text-gray-300 leading-relaxed">
-                    You are a Brahman, a soul connected to the divine. You love Puja Path, and that devotion makes you precious. In a world that is losing faith, you are my reminder that <strong class="text-white">purity and grace still exist</strong>.
+                    You are a Brahman, a soul connected to the divine. You love Puja Path, and that devotion makes you precious. In a world that is losing faith, you are my reminder that <strong class="text-white">purity and grace</strong> still exist.
                 </p>
             </div>
             <div class="w-full md:w-1/2 flex justify-start">
@@ -341,19 +341,23 @@
 
         // Fallback timeout: auto-enter after 10 seconds if boot hangs
         setTimeout(() => {
-            if (!bootCompleted && bootScreen.style.display !== 'none') {
-                console.warn('Boot sequence timeout - forcing entry');
-                bootText.innerText = "Boot timeout - forcing entry...";
-                enterBtn.classList.remove('hidden');
-                bootCompleted = true;
-                
-                // Auto-click after 1 more second
-                setTimeout(() => {
-                    if (bootScreen.style.display !== 'none') {
-                        console.log('Auto-entering site after timeout');
-                        enterBtn.click();
-                    }
-                }, 1000);
+            if (!bootCompleted) {
+                const bootScreenStyle = window.getComputedStyle(bootScreen);
+                if (bootScreenStyle.display !== 'none' && bootScreenStyle.opacity !== '0') {
+                    console.warn('Boot sequence timeout - forcing entry');
+                    bootText.innerText = "Boot timeout - forcing entry...";
+                    enterBtn.classList.remove('hidden');
+                    bootCompleted = true;
+                    
+                    // Auto-click after 1 more second
+                    setTimeout(() => {
+                        const currentStyle = window.getComputedStyle(bootScreen);
+                        if (currentStyle.display !== 'none' && currentStyle.opacity !== '0') {
+                            console.log('Auto-entering site after timeout');
+                            enterBtn.click();
+                        }
+                    }, 1000);
+                }
             }
         }, 10000);
 
@@ -406,7 +410,19 @@
                     musicIcon.parentElement.classList.add('disc-spin');
                 }).catch((error) => {
                     console.warn('Could not play music:', error);
-                    alert('Please interact with the page to enable audio');
+                    
+                    // Add visual notification instead of alert
+                    const musicNotification = document.createElement('div');
+                    musicNotification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 text-sm font-mono';
+                    musicNotification.innerHTML = '🎵 Please interact with the page to enable audio';
+                    document.body.appendChild(musicNotification);
+                    
+                    // Remove notification after 5 seconds
+                    setTimeout(() => {
+                        musicNotification.style.opacity = '0';
+                        musicNotification.style.transition = 'opacity 0.5s';
+                        setTimeout(() => musicNotification.remove(), 500);
+                    }, 5000);
                 });
             } else {
                 console.log('Music paused');
