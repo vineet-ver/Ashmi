@@ -292,9 +292,18 @@
         // REPLACE THIS WITH YOUR WHATSAPP NUMBER!
         const YOUR_PHONE_NUMBER = "910000000000"; 
         
-        // Initialize Icons
-        lucide.createIcons();
-        gsap.registerPlugin(ScrollTrigger, TextPlugin);
+        // Initialize Icons (with error handling for CDN failures)
+        try {
+            lucide.createIcons();
+        } catch (e) {
+            console.log("Lucide icons failed to load:", e);
+        }
+        
+        try {
+            gsap.registerPlugin(ScrollTrigger, TextPlugin);
+        } catch (e) {
+            console.log("GSAP plugins failed to load:", e);
+        }
 
         // --- 0. BOOT SEQUENCE ---
         const bootText = document.getElementById('boot-text');
@@ -319,12 +328,22 @@
         function runBoot() {
             if (msgIndex < bootMessages.length) {
                 bootText.innerText = bootMessages[msgIndex];
-                gsap.to(bootBar, { width: ((msgIndex + 1) / bootMessages.length) * 100 + "%", duration: 0.5 });
+                try {
+                    gsap.to(bootBar, { width: ((msgIndex + 1) / bootMessages.length) * 100 + "%", duration: 0.5 });
+                } catch (e) {
+                    // Fallback if GSAP is not loaded
+                    bootBar.style.width = ((msgIndex + 1) / bootMessages.length) * 100 + "%";
+                }
                 msgIndex++;
                 setTimeout(runBoot, 800);
             } else {
                 enterBtn.classList.remove('hidden');
-                gsap.from(enterBtn, { opacity: 0, y: 10 });
+                try {
+                    gsap.from(enterBtn, { opacity: 0, y: 10 });
+                } catch (e) {
+                    // Fallback if GSAP is not loaded
+                    enterBtn.style.opacity = 1;
+                }
             }
         }
 
@@ -339,15 +358,22 @@
                 console.log("Audio blocked by browser policy");
             });
 
-            gsap.to(bootScreen, {
-                opacity: 0,
-                duration: 1,
-                onComplete: () => {
-                    bootScreen.style.display = 'none';
-                    mainBody.classList.remove('opacity-0');
-                    initMainAnimations();
-                }
-            });
+            try {
+                gsap.to(bootScreen, {
+                    opacity: 0,
+                    duration: 1,
+                    onComplete: () => {
+                        bootScreen.style.display = 'none';
+                        mainBody.classList.remove('opacity-0');
+                        initMainAnimations();
+                    }
+                });
+            } catch (e) {
+                // Fallback if GSAP is not loaded
+                bootScreen.style.display = 'none';
+                mainBody.classList.remove('opacity-0');
+                initMainAnimations();
+            }
         });
 
         function toggleMusic() {
@@ -363,38 +389,55 @@
         // --- 1. MAIN ANIMATIONS ---
         function initMainAnimations() {
             
-            // Hero Text
-            gsap.from("h1", { duration: 1.5, y: 100, opacity: 0, ease: "power4.out" });
+            // Hero Text (with error handling)
+            try {
+                gsap.from("h1", { duration: 1.5, y: 100, opacity: 0, ease: "power4.out" });
+            } catch (e) {
+                console.log("GSAP animation failed:", e);
+            }
             
             // Story Blocks (Timeline)
-            gsap.utils.toArray('.story-block').forEach((block, i) => {
-                gsap.to(block, {
-                    scrollTrigger: {
-                        trigger: block,
-                        start: "top 80%",
-                        toggleActions: "play none none reverse"
-                    },
-                    opacity: 1,
-                    y: 0,
-                    duration: 1,
-                    ease: "power3.out"
+            try {
+                gsap.utils.toArray('.story-block').forEach((block, i) => {
+                    gsap.to(block, {
+                        scrollTrigger: {
+                            trigger: block,
+                            start: "top 80%",
+                            toggleActions: "play none none reverse"
+                        },
+                        opacity: 1,
+                        y: 0,
+                        duration: 1,
+                        ease: "power3.out"
+                    });
                 });
-            });
+            } catch (e) {
+                console.log("Story block animations failed:", e);
+                // Make blocks visible without animation
+                document.querySelectorAll('.story-block').forEach(block => {
+                    block.style.opacity = 1;
+                    block.style.transform = 'translateY(0)';
+                });
+            }
 
             // Love Letter Lines (One by one)
-            gsap.utils.toArray('.letter-text').forEach((line) => {
-                gsap.from(line, {
-                    scrollTrigger: {
-                        trigger: line,
-                        start: "top 85%",
-                        end: "bottom center",
-                        scrub: 1
-                    },
-                    opacity: 0.1,
-                    scale: 0.9,
-                    color: "#333"
+            try {
+                gsap.utils.toArray('.letter-text').forEach((line) => {
+                    gsap.from(line, {
+                        scrollTrigger: {
+                            trigger: line,
+                            start: "top 85%",
+                            end: "bottom center",
+                            scrub: 1
+                        },
+                        opacity: 0.1,
+                        scale: 0.9,
+                        color: "#333"
+                    });
                 });
-            });
+            } catch (e) {
+                console.log("Letter text animations failed:", e);
+            }
         }
 
         // --- 2. CANVAS STARS ---
@@ -467,47 +510,63 @@
 
         yesBtn.addEventListener('click', () => {
             // 1. Confetti
-            const duration = 5 * 1000;
-            const end = Date.now() + duration;
+            try {
+                const duration = 5 * 1000;
+                const end = Date.now() + duration;
 
-            (function frame() {
-                confetti({
-                    particleCount: 5,
-                    angle: 60,
-                    spread: 55,
-                    origin: { x: 0 },
-                    colors: ['#ff2a6d', '#ffd700']
-                });
-                confetti({
-                    particleCount: 5,
-                    angle: 120,
-                    spread: 55,
-                    origin: { x: 1 },
-                    colors: ['#ff2a6d', '#ffd700']
-                });
+                (function frame() {
+                    confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 },
+                        colors: ['#ff2a6d', '#ffd700']
+                    });
+                    confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 },
+                        colors: ['#ff2a6d', '#ffd700']
+                    });
 
-                if (Date.now() < end) {
-                    requestAnimationFrame(frame);
-                }
-            }());
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            } catch (e) {
+                console.log("Confetti animation failed:", e);
+            }
 
             // 2. UI Transition
-            gsap.to(proposalContent, {
-                opacity: 0,
-                scale: 0.8,
-                duration: 0.5,
-                onComplete: () => {
-                    proposalContent.style.display = 'none';
-                    successContent.classList.remove('hidden');
-                    gsap.from(successContent, { opacity: 0, scale: 0.5, duration: 0.5, ease: "back.out" });
-                    
-                    // 3. WhatsApp Redirect (after 3 seconds)
-                    setTimeout(() => {
-                        const message = encodeURIComponent("Hey! I saw your website... and YES, I will be yours! ❤️💍");
-                        window.location.href = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${message}`;
-                    }, 3500);
-                }
-            });
+            try {
+                gsap.to(proposalContent, {
+                    opacity: 0,
+                    scale: 0.8,
+                    duration: 0.5,
+                    onComplete: () => {
+                        proposalContent.style.display = 'none';
+                        successContent.classList.remove('hidden');
+                        gsap.from(successContent, { opacity: 0, scale: 0.5, duration: 0.5, ease: "back.out" });
+                        
+                        // 3. WhatsApp Redirect (after 3 seconds)
+                        setTimeout(() => {
+                            const message = encodeURIComponent("Hey! I saw your website... and YES, I will be yours! ❤️💍");
+                            window.location.href = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${message}`;
+                        }, 3500);
+                    }
+                });
+            } catch (e) {
+                // Fallback if GSAP is not loaded
+                proposalContent.style.display = 'none';
+                successContent.classList.remove('hidden');
+                
+                // 3. WhatsApp Redirect (after 3 seconds)
+                setTimeout(() => {
+                    const message = encodeURIComponent("Hey! I saw your website... and YES, I will be yours! ❤️💍");
+                    window.location.href = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${message}`;
+                }, 3500);
+            }
         });
     </script>
 </body>
