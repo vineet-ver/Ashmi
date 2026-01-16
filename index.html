@@ -366,6 +366,21 @@
             runBoot();
         };
 
+        // Helper function to create and show notifications
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 text-sm font-mono';
+            notification.innerHTML = message;
+            document.body.appendChild(notification);
+            
+            // Remove notification after 5 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 5000);
+        }
+
         enterBtn.addEventListener('click', () => {
             console.log('Enter button clicked - attempting to start audio and enter site');
             
@@ -376,19 +391,7 @@
                 musicIcon.parentElement.classList.add('disc-spin');
             }).catch((error) => {
                 console.warn('Audio blocked by browser policy:', error);
-                
-                // Add visual notification for blocked audio
-                const audioNotification = document.createElement('div');
-                audioNotification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 text-sm font-mono';
-                audioNotification.innerHTML = '🔇 Audio blocked - Click the music icon to enable';
-                document.body.appendChild(audioNotification);
-                
-                // Remove notification after 5 seconds
-                setTimeout(() => {
-                    audioNotification.style.opacity = '0';
-                    audioNotification.style.transition = 'opacity 0.5s';
-                    setTimeout(() => audioNotification.remove(), 500);
-                }, 5000);
+                showNotification('🔇 Audio blocked - Click the music icon to enable');
             });
 
             gsap.to(bootScreen, {
@@ -410,19 +413,7 @@
                     musicIcon.parentElement.classList.add('disc-spin');
                 }).catch((error) => {
                     console.warn('Could not play music:', error);
-                    
-                    // Add visual notification instead of alert
-                    const musicNotification = document.createElement('div');
-                    musicNotification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 text-sm font-mono';
-                    musicNotification.innerHTML = '🎵 Please interact with the page to enable audio';
-                    document.body.appendChild(musicNotification);
-                    
-                    // Remove notification after 5 seconds
-                    setTimeout(() => {
-                        musicNotification.style.opacity = '0';
-                        musicNotification.style.transition = 'opacity 0.5s';
-                        setTimeout(() => musicNotification.remove(), 500);
-                    }, 5000);
+                    showNotification('🎵 Please interact with the page to enable audio');
                 });
             } else {
                 console.log('Music paused');
