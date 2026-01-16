@@ -344,25 +344,27 @@
             }
         }
 
+        // Helper to check if boot screen is visible
+        function isBootScreenVisible() {
+            const style = window.getComputedStyle(bootScreen);
+            return style.display !== 'none' && style.opacity !== '0';
+        }
+
         // Fallback timeout: auto-enter after 10 seconds if boot hangs
         setTimeout(() => {
-            if (!bootCompleted) {
-                const bootScreenStyle = window.getComputedStyle(bootScreen);
-                if (bootScreenStyle.display !== 'none' && bootScreenStyle.opacity !== '0') {
-                    console.warn('Boot sequence timeout - forcing entry');
-                    bootText.innerText = "Boot timeout - forcing entry...";
-                    enterBtn.classList.remove('hidden');
-                    bootCompleted = true;
-                    
-                    // Auto-click after 1 more second
-                    setTimeout(() => {
-                        const currentStyle = window.getComputedStyle(bootScreen);
-                        if (currentStyle.display !== 'none' && currentStyle.opacity !== '0') {
-                            console.log('Auto-entering site after timeout');
-                            enterBtn.click();
-                        }
-                    }, 1000);
-                }
+            if (!bootCompleted && isBootScreenVisible()) {
+                console.warn('Boot sequence timeout - forcing entry');
+                bootText.innerText = "Boot timeout - forcing entry...";
+                enterBtn.classList.remove('hidden');
+                bootCompleted = true;
+                
+                // Auto-click after 1 more second
+                setTimeout(() => {
+                    if (isBootScreenVisible()) {
+                        console.log('Auto-entering site after timeout');
+                        enterBtn.click();
+                    }
+                }, 1000);
             }
         }, 10000);
 
@@ -371,18 +373,31 @@
             runBoot();
         };
 
-        // Helper function to create and show notifications
+        // Helper function to create and show notifications (max 3 concurrent)
+        let activeNotifications = [];
         function showNotification(message) {
+            // Limit to 3 concurrent notifications
+            if (activeNotifications.length >= 3) {
+                const oldest = activeNotifications.shift();
+                if (oldest && oldest.parentNode) {
+                    oldest.remove();
+                }
+            }
+            
             const notification = document.createElement('div');
             notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 text-sm font-mono';
             notification.textContent = message;
             document.body.appendChild(notification);
+            activeNotifications.push(notification);
             
             // Remove notification after 5 seconds
             setTimeout(() => {
                 notification.style.opacity = '0';
                 notification.style.transition = 'opacity 0.5s';
-                setTimeout(() => notification.remove(), 500);
+                setTimeout(() => {
+                    notification.remove();
+                    activeNotifications = activeNotifications.filter(n => n !== notification);
+                }, 500);
             }, 5000);
         }
 
