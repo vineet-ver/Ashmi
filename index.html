@@ -3,329 +3,511 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>A Question for Ashmita...</title>
+    <title>Protocol: Ashmita ❤️</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Dancing+Script:wght@600&family=Montserrat:wght@300;400;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Dancing+Script:wght@700&family=Space+Mono:wght@400;700&family=Montserrat:wght@300;400;500;700&display=swap');
+
+        :root {
+            --neon-pink: #ff2a6d;
+            --neon-blue: #05d9e8;
+            --deep-bg: #010104;
+            --gold: #FFD700;
+        }
 
         body {
-            background-color: #000;
+            background-color: var(--deep-bg);
             color: white;
             font-family: 'Montserrat', sans-serif;
             overflow-x: hidden;
-            height: 100vh;
-            margin: 0;
         }
 
-        .cinematic-font { font-family: 'Cinzel', serif; }
+        /* Cinematic Fonts */
+        .cinzel { font-family: 'Cinzel', serif; }
         .handwriting { font-family: 'Dancing Script', cursive; }
+        .mono { font-family: 'Space Mono', monospace; }
 
-        /* The Deep Space Background */
-        #universe-canvas {
+        /* Starry Background */
+        #starfield {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+            background: radial-gradient(circle at center, #1a0b2e 0%, #000000 100%);
         }
 
-        /* Glassmorphism */
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
+        /* Glass Cards */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
         }
 
-        /* Glowing Text */
-        .glow-text {
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 40px rgba(255, 105, 180, 0.6);
+        /* Text Gradients */
+        .text-glow {
+            text-shadow: 0 0 10px rgba(255, 42, 109, 0.7), 0 0 20px rgba(255, 42, 109, 0.5);
+        }
+        .gold-glow {
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
         }
 
-        /* The "Glitch" Effect for the No Button */
-        .glitch-active {
-            animation: glitch-anim 0.3s infinite;
-            color: red;
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #ff2a6d; 
         }
 
-        @keyframes glitch-anim {
-            0% { transform: translate(0) }
-            20% { transform: translate(-2px, 2px) }
-            40% { transform: translate(-2px, -2px) }
-            60% { transform: translate(2px, 2px) }
-            80% { transform: translate(2px, -2px) }
-            100% { transform: translate(0) }
-        }
-
-        /* Hide Scrollbar */
-        ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-        /* Initial Overlay */
-        #intro-overlay {
+        /* Music Player Widget */
+        .music-widget {
             position: fixed;
-            inset: 0;
-            background: black;
-            z-index: 9999;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #333;
+            border-radius: 50px;
+            padding: 10px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            cursor: pointer;
+            gap: 10px;
+            transition: all 0.3s ease;
         }
+        .music-widget:hover {
+            border-color: var(--neon-pink);
+            box-shadow: 0 0 15px var(--neon-pink);
+        }
+        
+        .disc-spin {
+            animation: spin 3s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .heartbeat {
-            animation: beat 1.5s infinite;
-        }
-        @keyframes beat {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 1; }
+        /* Loader */
+        .loader-bar {
+            width: 0%;
+            height: 2px;
+            background: var(--neon-pink);
+            box-shadow: 0 0 10px var(--neon-pink);
         }
     </style>
 </head>
-<body>
+<body class="opacity-0 transition-opacity duration-1000" id="main-body">
 
-    <div id="intro-overlay">
-        <div class="text-center">
-            <p class="text-gray-400 text-sm tracking-[0.5em] mb-4 uppercase">Incoming Transmission</p>
-            <h1 class="text-4xl md:text-6xl cinematic-font text-white glow-text heartbeat">
-                Tap to Enter the Multiverse
-            </h1>
-        </div>
-    </div>
-
-    <canvas id="universe-canvas"></canvas>
+    <canvas id="starfield"></canvas>
 
     <audio id="bg-music" loop>
-        <source src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_3062369688.mp3?filename=cosmic-love-111874.mp3" type="audio/mpeg">
+        <source src="https://cdn.pixabay.com/download/audio/2022/10/25/audio_1067332205.mp3?filename=romantic-moment-123498.mp3" type="audio/mpeg">
     </audio>
 
-    <div id="main-content" class="opacity-0 min-h-screen flex flex-col relative">
-        
-        <div id="text-sequence" class="h-screen flex items-center justify-center absolute inset-0 pointer-events-none z-20">
-            <h2 id="dynamic-text" class="text-3xl md:text-5xl cinematic-font text-center leading-relaxed px-4 text-white"></h2>
+    <div class="music-widget cursor-pointer" onclick="toggleMusic()">
+        <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
+            <i data-lucide="disc" class="w-6 h-6 text-pink-500" id="music-icon"></i>
         </div>
-
-        <div id="proposal-card" class="hidden min-h-screen flex flex-col items-center justify-center z-30 p-4">
-            
-            <div class="glass-panel p-8 md:p-16 rounded-[3rem] max-w-4xl w-full text-center relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-pink-500 to-transparent"></div>
-                <div class="absolute -top-20 -right-20 w-60 h-60 bg-purple-600 rounded-full blur-[100px] opacity-30"></div>
-                <div class="absolute -bottom-20 -left-20 w-60 h-60 bg-yellow-600 rounded-full blur-[100px] opacity-30"></div>
-
-                <h1 class="text-5xl md:text-7xl cinematic-font mb-6 leading-tight">
-                    Ashmita
-                </h1>
-                
-                <p class="text-xl md:text-2xl text-gray-200 font-light mb-8 leading-relaxed">
-                    I've done the math. I've calculated the variables.<br>
-                    In every timeline, every reality, and every version of existence...
-                </p>
-
-                <div class="py-6">
-                    <span class="text-4xl md:text-6xl handwriting text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 block mb-4">
-                        I Love You in Every Universe.
-                    </span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-400 mb-12 mt-8">
-                    <div class="border border-white/10 p-4 rounded-xl">
-                        <p class="text-pink-300 font-bold mb-1">Target</p>
-                        The Girl with the Nose Ring
-                    </div>
-                    <div class="border border-white/10 p-4 rounded-xl">
-                        <p class="text-yellow-300 font-bold mb-1">Mission</p>
-                        Worship the Ground She Walks On
-                    </div>
-                    <div class="border border-white/10 p-4 rounded-xl">
-                        <p class="text-purple-300 font-bold mb-1">Deadline</p>
-                        June 28 (Forever)
-                    </div>
-                </div>
-
-                <div class="relative h-24 flex items-center justify-center gap-8">
-                    <button id="yes-btn" class="group relative px-10 py-4 bg-white text-black rounded-full font-bold text-xl hover:scale-110 transition-transform duration-300 z-10 overflow-hidden">
-                        <span class="relative z-10">YES, i love you too ❤️</span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white"></div>
-                    </button>
-                    
-                    <button id="no-btn" class="px-10 py-4 border border-white/30 rounded-full font-bold text-xl text-gray-400 hover:bg-white/10 transition-colors z-10">
-                        No
-                    </button>
-                </div>
-
-                <p id="universe-status" class="mt-8 text-xs text-gray-500 font-mono">
-                    Current Universe Status: <span class="text-green-400">Stable</span>
-                </p>
-            </div>
-        </div>
-
-        <div id="success-screen" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl">
-            <div class="text-center">
-                <h1 class="text-6xl md:text-9xl font-bold text-white mb-8 animate-bounce">SHE SAID YES!</h1>
-                <p class="text-2xl text-pink-400 handwriting">Our timeline is now locked. ❤️</p>
-            </div>
-        </div>
-
+        <span class="text-xs font-mono text-gray-300 pr-2 hidden md:block">Our Soundtrack</span>
     </div>
 
+    <div id="boot-screen" class="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center font-mono text-green-500 p-8">
+        <div class="w-full max-w-lg">
+            <p id="boot-text" class="mb-4 text-sm md:text-base h-20">Initializing...</p>
+            <div class="w-full h-1 bg-gray-900 rounded-full overflow-hidden">
+                <div id="boot-bar" class="loader-bar"></div>
+            </div>
+            <button id="enter-btn" class="hidden mt-8 px-8 py-3 border border-green-500 text-green-500 hover:bg-green-500 hover:text-black transition-all uppercase tracking-widest text-sm">
+                Access Granted: Click to Open
+            </button>
+        </div>
+    </div>
+
+    <section class="min-h-screen flex flex-col items-center justify-center relative px-4">
+        <div class="text-center z-10">
+            <div class="inline-block border border-pink-500/30 bg-pink-500/10 px-4 py-1 rounded-full mb-6">
+                <span class="text-pink-400 text-xs tracking-[0.3em] uppercase">Target ID: Ashmita Sharma</span>
+            </div>
+            
+            <h1 class="text-6xl md:text-9xl font-bold cinzel text-white mb-2 leading-none relative">
+                ASHMITA
+                <span class="absolute -top-10 -right-10 text-6xl animate-bounce">👑</span>
+            </h1>
+            
+            <p class="text-gray-400 text-lg md:text-xl font-light tracking-widest uppercase mt-4">
+                The Girl with the Nose Ring
+            </p>
+
+            <div class="mt-20 animate-pulse">
+                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Scroll to Discover Why</p>
+                <i data-lucide="chevron-down" class="w-6 h-6 mx-auto text-white"></i>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 max-w-4xl mx-auto space-y-32">
+        
+        <div class="story-block opacity-0 translate-y-20 flex flex-col md:flex-row items-center gap-10">
+            <div class="w-full md:w-1/2 text-right">
+                <h2 class="text-4xl cinzel text-yellow-400 mb-4">The Snap</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    It started as a pixelated image on a screen. Just a Snapchat notification. But the moment we started talking, the noise of the world faded away. I didn't just find a friend; I found a frequency that only my heart could hear.
+                </p>
+            </div>
+            <div class="w-full md:w-1/2 flex justify-start">
+                <div class="w-32 h-32 bg-yellow-400/10 rounded-full flex items-center justify-center border border-yellow-400 shadow-[0_0_30px_rgba(255,215,0,0.2)]">
+                    <i data-lucide="ghost" class="w-16 h-16 text-yellow-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="story-block opacity-0 translate-y-20 flex flex-col md:flex-row-reverse items-center gap-10">
+            <div class="w-full md:w-1/2 text-left">
+                <h2 class="text-4xl cinzel text-pink-500 mb-4">The Detail</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    They say eyes are the window to the soul, but for me, it was that <strong class="text-white">Nose Ring</strong>. It captures your beauty in a way that feels ancient and modern all at once. It’s a small detail, but to me, it shines brighter than any star in this background.
+                </p>
+            </div>
+            <div class="w-full md:w-1/2 flex justify-end">
+                <div class="w-32 h-32 bg-pink-500/10 rounded-full flex items-center justify-center border border-pink-500 shadow-[0_0_30px_rgba(255,42,109,0.2)]">
+                    <i data-lucide="gem" class="w-16 h-16 text-pink-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="story-block opacity-0 translate-y-20 flex flex-col md:flex-row items-center gap-10">
+            <div class="w-full md:w-1/2 text-right">
+                <h2 class="text-4xl cinzel text-purple-400 mb-4">The Faith</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    You are a Brahman, a soul connected to the divine. You love Puja Path, and that devotion makes you precious. In a world that is losing faith, you are my reminder that <strong class="text-white">God</strong> exists. You are my blessing.
+                </p>
+            </div>
+            <div class="w-full md:w-1/2 flex justify-start">
+                <div class="w-32 h-32 bg-purple-500/10 rounded-full flex items-center justify-center border border-purple-500 shadow-[0_0_30px_rgba(147,51,234,0.2)]">
+                    <i data-lucide="sparkles" class="w-16 h-16 text-purple-400"></i>
+                </div>
+            </div>
+        </div>
+
+    </section>
+
+    <section class="min-h-screen py-20 flex items-center justify-center bg-black/50 relative overflow-hidden">
+        <div class="absolute top-0 w-full h-20 bg-gradient-to-b from-black to-transparent z-10"></div>
+        <div class="absolute bottom-0 w-full h-20 bg-gradient-to-t from-black to-transparent z-10"></div>
+
+        <div class="max-w-2xl px-6 text-center space-y-12 z-0">
+            <p class="letter-text text-2xl md:text-3xl font-light text-gray-400 leading-normal">
+                Ashmita, I don't know how to say this simply.
+            </p>
+            <p class="letter-text text-2xl md:text-3xl font-light text-gray-200 leading-normal">
+                June 28th gave the world a Queen, but Snapchat gave me my whole world.
+            </p>
+            <p class="letter-text text-3xl md:text-4xl font-serif text-pink-400 leading-normal italic">
+                I am falling for you.
+            </p>
+            <p class="letter-text text-2xl md:text-3xl font-light text-gray-400 leading-normal">
+                Not just for your face (which is perfect), but for your heart, your prayers, and the way you exist.
+            </p>
+            <p class="letter-text text-2xl md:text-3xl font-light text-white leading-normal font-bold">
+                I want to be the one who makes you smile every day until we are old.
+            </p>
+        </div>
+    </section>
+
+    <section class="min-h-screen flex flex-col items-center justify-center px-4 relative">
+        
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+            <div class="w-[500px] h-[500px] border border-pink-500 rounded-full animate-[spin_10s_linear_infinite]"></div>
+            <div class="w-[400px] h-[400px] border border-yellow-500 rounded-full absolute animate-[spin_15s_linear_infinite_reverse]"></div>
+        </div>
+
+        <div class="glass p-8 md:p-16 rounded-[2rem] max-w-3xl w-full text-center relative z-20 border-t border-white/20">
+            
+            <div id="proposal-content">
+                <span class="text-xs font-mono text-pink-400 mb-4 block">FINAL QUESTION DETECTED</span>
+                
+                <h2 class="text-4xl md:text-6xl cinzel font-bold text-white mb-8 leading-tight">
+                    Will you be mine?
+                </h2>
+                
+                <p class="text-gray-400 mb-12 text-sm md:text-base max-w-lg mx-auto">
+                    I promise to respect your values, support your dreams, and always admire that nose ring.
+                </p>
+
+                <div class="flex flex-col md:flex-row items-center justify-center gap-6 h-32 relative">
+                    
+                    <button id="yes-btn" class="group relative px-12 py-5 bg-gradient-to-r from-pink-600 to-purple-600 rounded-full overflow-hidden shadow-[0_0_20px_rgba(255,42,109,0.4)] transition-transform hover:scale-105 active:scale-95">
+                        <span class="relative z-10 text-xl font-bold tracking-wider text-white">YES, I WILL ❤️</span>
+                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                    </button>
+
+                    <button id="no-btn" class="px-12 py-5 border border-white/20 rounded-full text-gray-500 font-bold hover:bg-white/5 transition-all text-xl">
+                        No
+                    </button>
+
+                </div>
+            </div>
+
+            <div id="success-content" class="hidden">
+                <div class="animate-bounce mb-6">
+                    <i data-lucide="heart" class="w-24 h-24 text-red-500 fill-red-500 mx-auto"></i>
+                </div>
+                <h2 class="text-5xl md:text-7xl cinzel font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-yellow-400 mb-6">
+                    SHE SAID YES!
+                </h2>
+                <p class="text-white text-lg mb-8">
+                    Redirecting to WhatsApp to make it official...
+                </p>
+                <div class="w-full bg-gray-700 h-1 rounded-full overflow-hidden">
+                    <div class="h-full bg-green-500 animate-[loading_3s_ease-in-out_forwards]" style="width:0%"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <footer class="absolute bottom-4 text-center w-full text-gray-600 text-[10px] font-mono">
+            SECURE CONNECTION ESTABLISHED • DATE: FOREVER
+        </footer>
+    </section>
+
     <script>
-        gsap.registerPlugin(TextPlugin);
+        // --- CONFIGURATION ---
+        // REPLACE THIS WITH YOUR WHATSAPP NUMBER!
+        const YOUR_PHONE_NUMBER = "910000000000"; 
+        
+        // Initialize Icons
+        lucide.createIcons();
+        gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
-        // --- 1. THE UNIVERSE BACKGROUND (Starfield) ---
-        const canvas = document.getElementById('universe-canvas');
+        // --- 0. BOOT SEQUENCE ---
+        const bootText = document.getElementById('boot-text');
+        const bootBar = document.getElementById('boot-bar');
+        const enterBtn = document.getElementById('enter-btn');
+        const bootScreen = document.getElementById('boot-screen');
+        const mainBody = document.getElementById('main-body');
+        const music = document.getElementById('bg-music');
+        const musicIcon = document.getElementById('music-icon');
+
+        const bootMessages = [
+            "Connecting to Server...",
+            "Searching for User: Ashmita Sharma...",
+            "Analyzing Data: Brahman / June 28 / Nose Ring...",
+            "Match Probability: 100%...",
+            "Loading Romance.exe...",
+            "System Ready."
+        ];
+
+        let msgIndex = 0;
+        
+        function runBoot() {
+            if (msgIndex < bootMessages.length) {
+                bootText.innerText = bootMessages[msgIndex];
+                gsap.to(bootBar, { width: ((msgIndex + 1) / bootMessages.length) * 100 + "%", duration: 0.5 });
+                msgIndex++;
+                setTimeout(runBoot, 800);
+            } else {
+                enterBtn.classList.remove('hidden');
+                gsap.from(enterBtn, { opacity: 0, y: 10 });
+            }
+        }
+
+        window.onload = runBoot;
+
+        enterBtn.addEventListener('click', () => {
+            // Attempt Audio Play
+            music.volume = 0.4;
+            music.play().then(() => {
+                musicIcon.parentElement.classList.add('disc-spin');
+            }).catch(() => {
+                console.log("Audio blocked by browser policy");
+            });
+
+            gsap.to(bootScreen, {
+                opacity: 0,
+                duration: 1,
+                onComplete: () => {
+                    bootScreen.style.display = 'none';
+                    mainBody.classList.remove('opacity-0');
+                    initMainAnimations();
+                }
+            });
+        });
+
+        function toggleMusic() {
+            if (music.paused) {
+                music.play();
+                musicIcon.parentElement.classList.add('disc-spin');
+            } else {
+                music.pause();
+                musicIcon.parentElement.classList.remove('disc-spin');
+            }
+        }
+
+        // --- 1. MAIN ANIMATIONS ---
+        function initMainAnimations() {
+            
+            // Hero Text
+            gsap.from("h1", { duration: 1.5, y: 100, opacity: 0, ease: "power4.out" });
+            
+            // Story Blocks (Timeline)
+            gsap.utils.toArray('.story-block').forEach((block, i) => {
+                gsap.to(block, {
+                    scrollTrigger: {
+                        trigger: block,
+                        start: "top 80%",
+                        toggleActions: "play none none reverse"
+                    },
+                    opacity: 1,
+                    y: 0,
+                    duration: 1,
+                    ease: "power3.out"
+                });
+            });
+
+            // Love Letter Lines (One by one)
+            gsap.utils.toArray('.letter-text').forEach((line) => {
+                gsap.from(line, {
+                    scrollTrigger: {
+                        trigger: line,
+                        start: "top 85%",
+                        end: "bottom center",
+                        scrub: 1
+                    },
+                    opacity: 0.1,
+                    scale: 0.9,
+                    color: "#333"
+                });
+            });
+        }
+
+        // --- 2. CANVAS STARS ---
+        const canvas = document.getElementById('starfield');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let stars = [];
+        let width, height, stars = [];
 
-        function resize() {
+        function resizeCanvas() {
             width = window.innerWidth;
             height = window.innerHeight;
             canvas.width = width;
             canvas.height = height;
         }
-        
-        function initStars() {
+
+        function createStars() {
             stars = [];
-            for (let i = 0; i < 400; i++) {
+            for(let i=0; i<300; i++) {
                 stars.push({
                     x: Math.random() * width,
                     y: Math.random() * height,
-                    z: Math.random() * width, // depth
-                    o: '0.' + Math.floor(Math.random() * 99) + 1
+                    size: Math.random() * 2,
+                    speed: Math.random() * 0.5 + 0.1
                 });
             }
         }
 
-        function moveStars() {
-            ctx.fillStyle = "#000";
-            ctx.fillRect(0, 0, width, height);
-            
+        function animateStars() {
+            ctx.clearRect(0,0,width,height);
+            ctx.fillStyle = "white";
             stars.forEach(star => {
-                star.z -= 0.5; // Speed of travel
-                if (star.z <= 0) {
-                    star.z = width;
-                    star.x = Math.random() * width;
-                    star.y = Math.random() * height;
-                }
-                
-                const k = 128.0 / star.z;
-                const px = star.x * k + width / 2;
-                const py = star.y * k + height / 2;
-                
-                if (px >= 0 && px <= width && py >= 0 && py <= height) {
-                    const size = (1 - star.z / width) * 2.5;
-                    const shade = parseInt((1 - star.z / width) * 255);
-                    ctx.fillStyle = `rgb(${shade},${shade},${shade})`;
-                    ctx.beginPath();
-                    ctx.arc(px, py, size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI*2);
+                ctx.fill();
+                star.y -= star.speed;
+                if(star.y < 0) star.y = height;
             });
-            requestAnimationFrame(moveStars);
+            requestAnimationFrame(animateStars);
         }
 
-        window.addEventListener('resize', resize);
-        resize();
-        initStars();
-        moveStars();
+        window.addEventListener('resize', () => { resizeCanvas(); createStars(); });
+        resizeCanvas();
+        createStars();
+        animateStars();
 
-        // --- 2. THE SEQUENCE LOGIC ---
-        const overlay = document.getElementById('intro-overlay');
-        const mainContent = document.getElementById('main-content');
-        const music = document.getElementById('bg-music');
-        const textElement = document.getElementById('dynamic-text');
-        const proposalCard = document.getElementById('proposal-card');
-        const textSequence = document.getElementById('text-sequence');
-
-        overlay.addEventListener('click', () => {
-            // Start Music (browser requires interaction first)
-            music.volume = 0.5;
-            music.play().catch(e => console.log("Audio autoplay blocked"));
-
-            // Fade out overlay
-            gsap.to(overlay, { opacity: 0, duration: 1, onComplete: () => overlay.style.display = 'none' });
-            gsap.to(mainContent, { opacity: 1, duration: 1 });
-
-            // Run Cinematic Text Sequence
-            const tl = gsap.timeline({
-                onComplete: () => {
-                    gsap.to(textSequence, { opacity: 0, duration: 1, display: 'none' });
-                    proposalCard.classList.remove('hidden');
-                    gsap.from(proposalCard, { opacity: 0, scale: 0.8, duration: 1.5, ease: "power2.out" });
-                }
-            });
-
-            tl.to(textElement, { duration: 0.5, opacity: 1, text: "I searched every timeline..." })
-              .to(textElement, { duration: 2.5, opacity: 1 }) // wait
-              .to(textElement, { duration: 0.5, opacity: 0 }) // fade out
-              
-              .to(textElement, { duration: 0.5, opacity: 1, text: "I looked across 14,000,605 possibilities..." })
-              .to(textElement, { duration: 2.5, opacity: 1 })
-              .to(textElement, { duration: 0.5, opacity: 0 })
-
-              .to(textElement, { duration: 0.5, opacity: 1, text: "I found a girl with a nose ring..." })
-              .to(textElement, { duration: 2, opacity: 1 })
-              .to(textElement, { duration: 0.5, opacity: 0 })
-
-              .to(textElement, { duration: 0.5, opacity: 1, text: "Who believes in God..." })
-              .to(textElement, { duration: 2, opacity: 1 })
-              .to(textElement, { duration: 0.5, opacity: 0 })
-
-              .to(textElement, { duration: 0.5, opacity: 1, text: "But only ONE version of me gets to ask this..." })
-              .to(textElement, { duration: 3, opacity: 1 })
-              .to(textElement, { duration: 0.5, opacity: 0 });
-        });
-
-        // --- 3. INTERACTIVE BUTTONS ---
+        // --- 3. INTERACTIVE PROPOSAL ---
         const noBtn = document.getElementById('no-btn');
         const yesBtn = document.getElementById('yes-btn');
-        const statusText = document.getElementById('universe-status');
+        const proposalContent = document.getElementById('proposal-content');
+        const successContent = document.getElementById('success-content');
 
-        // Glitch Effect on Hover/Touch
-        const triggerGlitch = () => {
-            gsap.to(noBtn, { x: gsap.utils.random(-100, 100), y: gsap.utils.random(-100, 100), duration: 0.2 });
-            statusText.innerHTML = "SYSTEM ERROR: <span class='text-red-500'>CANNOT REJECT DESTINY</span>";
-            statusText.classList.add('glitch-active');
+        // The "Impossible No" Logic
+        noBtn.addEventListener('mouseenter', () => {
+            // Move random distance
+            const x = (Math.random() - 0.5) * 300;
+            const y = (Math.random() - 0.5) * 300;
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
             
-            // Occasionally change text
-            if(Math.random() > 0.5) {
-                noBtn.innerText = "Yes";
-                noBtn.style.color = "white";
-                noBtn.style.borderColor = "white";
-            }
-        };
+            // Sometimes change text
+            const texts = ["Really?", "Think again!", "Nope", "Try the other one"];
+            noBtn.innerText = texts[Math.floor(Math.random() * texts.length)];
+        });
 
-        noBtn.addEventListener('mouseenter', triggerGlitch);
-        noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); triggerGlitch(); });
+        // Mobile touch support for "No" button
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const x = (Math.random() - 0.5) * 200;
+            const y = (Math.random() - 0.5) * 200;
+            noBtn.style.transform = `translate(${x}px, ${y}px)`;
+        });
 
-        // --- 4. SUCCESS CELEBRATION ---
         yesBtn.addEventListener('click', () => {
-            const successScreen = document.getElementById('success-screen');
-            successScreen.classList.remove('hidden');
-            
-            // Massive Confetti
-            const duration = 15 * 1000;
-            const animationEnd = Date.now() + duration;
-            const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
+            // 1. Confetti
+            const duration = 5 * 1000;
+            const end = Date.now() + duration;
 
-            const randomInRange = (min, max) => Math.random() * (max - min) + min;
+            (function frame() {
+                confetti({
+                    particleCount: 5,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff2a6d', '#ffd700']
+                });
+                confetti({
+                    particleCount: 5,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff2a6d', '#ffd700']
+                });
 
-            const interval = setInterval(function() {
-                const timeLeft = animationEnd - Date.now();
-                if (timeLeft <= 0) return clearInterval(interval);
-                const particleCount = 50 * (timeLeft / duration);
-                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-                confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-            }, 250);
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+
+            // 2. UI Transition
+            gsap.to(proposalContent, {
+                opacity: 0,
+                scale: 0.8,
+                duration: 0.5,
+                onComplete: () => {
+                    proposalContent.style.display = 'none';
+                    successContent.classList.remove('hidden');
+                    gsap.from(successContent, { opacity: 0, scale: 0.5, duration: 0.5, ease: "back.out" });
+                    
+                    // 3. WhatsApp Redirect (after 3 seconds)
+                    setTimeout(() => {
+                        const message = encodeURIComponent("Hey! I saw your website... and YES, I will be yours! ❤️💍");
+                        window.location.href = `https://wa.me/${YOUR_PHONE_NUMBER}?text=${message}`;
+                    }, 3500);
+                }
+            });
         });
     </script>
 </body>
