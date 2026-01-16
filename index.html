@@ -293,10 +293,15 @@
         const YOUR_PHONE_NUMBER = "910000000000"; 
         
         // Global error handler for debugging
-        window.onerror = function(message, source, lineno, colno, error) {
-            console.error('Error caught:', { message, source, lineno, colno, error });
-            return false;
-        };
+        window.addEventListener('error', function(event) {
+            console.error('Error caught:', {
+                message: event.message,
+                source: event.filename,
+                lineno: event.lineno,
+                colno: event.colno,
+                error: event.error
+            });
+        });
         
         // Initialize Icons
         lucide.createIcons();
@@ -370,7 +375,7 @@
         function showNotification(message) {
             const notification = document.createElement('div');
             notification.className = 'fixed top-4 left-1/2 transform -translate-x-1/2 bg-yellow-600/90 text-white px-6 py-3 rounded-full shadow-lg z-50 text-sm font-mono';
-            notification.innerHTML = message;
+            notification.textContent = message;
             document.body.appendChild(notification);
             
             // Remove notification after 5 seconds
